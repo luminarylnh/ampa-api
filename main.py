@@ -30,8 +30,8 @@ def scan_tag(tag_id: str):
 
 @app.get("/generate/{tag_id}")
 def generate_qr(tag_id: str):
-    # 注意：部署後要把這裡改為 Render 給您的正式網址
-    qr_data = f"https://your-app-name.onrender.com/scan/{tag_id}"
+    # 這裡已經換成您正式的 Render 網址
+    qr_data = f"https://ampa-tag-system.onrender.com/scan/{tag_id}"
     qr = qrcode.make(qr_data)
     buf = BytesIO()
     qr.save(buf, format="PNG")
