@@ -19,7 +19,7 @@ def generate_qr(tag_id: str):
     # 客戶掃描後會前往的網址 (您的 Render 網址)
     qr_data = f"https://a-tag-system.onrender.com/scan/{tag_id}"
     
-    # 🚀 終極解法：呼叫全球最穩定的外部雲端 API 幫我們畫 QR Code
+    # 呼叫全球最穩定的外部雲端 API 幫我們畫 QR Code
     qr_image_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={qr_data}"
     
     return f"""
@@ -47,7 +47,6 @@ def scan_qr(tag_id: str):
     </html>
     """
 
-# --- 這是您專屬的收錢清單 (匯總頁面) ---
 @app.get("/summary", response_class=HTMLResponse)
 def get_summary():
     activated_list = [tag for tag, status in barcode_db.items() if status == 1]
