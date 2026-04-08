@@ -1,8 +1,5 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-import qrcode
-import io
-import base64
 
 app = FastAPI()
 
@@ -15,29 +12,23 @@ def read_root():
 
 @app.get("/generate/{tag_id}", response_class=HTMLResponse)
 def generate_qr(tag_id: str):
-    # 設定為未啟動狀態 (0)
+    # 紀錄至收錢清單 (預設狀態 0: 尚未啟動)
     if tag_id not in barcode_db:
         barcode_db[tag_id] = 0
         
-    # 生成指向 scan 網址的 QR Code
+    # 客戶掃描後會前往的網址 (您的 Render 網址)
     qr_data = f"https://a-tag-system.onrender.com/scan/{tag_id}"
     
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(qr_data)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    qr_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    # 🚀 終極解法：呼叫全球最穩定的外部雲端 API 幫我們畫 QR Code
+    qr_image_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={qr_data}"
     
     return f"""
     <html>
         <body style="text-align: center; font-family: sans-serif; padding-top: 50px;">
-            <h2>A-Tag 標籤生成成功</h2>
-            <p>料號: <b>{tag_id}</b></p>
-            <img src="data:image/png;base64,{qr_b64}" alt="QR Code" />
-            <p>請掃描上方條碼以啟動標籤</p>
+            <h2 style="color: #1e3a8a;">A-Tag 標籤生成成功</h2>
+            <p style="font-size: 20px;">料號: <b>{tag_id}</b></p>
+            <img src="{qr_image_url}" alt="QR Code" style="margin: 20px; border: 5px solid #ccc; border-radius: 10px;" />
+            <p style="font-size: 16px; color: #555;">請掃描上方條碼以啟動標籤</p>
         </body>
     </html>
     """
@@ -62,7 +53,7 @@ def get_summary():
     activated_list = [tag for tag, status in barcode_db.items() if status == 1]
     
     if not activated_list:
-        items_html = "<li style='color: gray;'>目前尚無啟動的料號...快去掃碼收錢！</li>"
+        items_html = "<li style='color: gray; text-align: center;'>目前尚無啟動的料號...快去掃碼收錢！</li>"
     else:
         items_html = "".join([f"<li style='margin: 10px 0; font-size: 18px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;'>📦 料號: <b>{tag}</b> <span style='float: right; color: #16a34a;'>✔️ 已裝櫃</span></li>" for tag in activated_list])
     
